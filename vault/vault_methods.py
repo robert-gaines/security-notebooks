@@ -35,11 +35,22 @@ class VaultMethods():
 
     def retrieve_gravwell_secret(self) -> str:
         '''Retrieve Gravwell API token'''
-        url = self.url+"/v1/gravwell/data/gravwell-service-token"
+        url = self.url + "/v1/gravwell/data/gravwell-service-token"
         try:
             response = requests.get(url, headers=self.headers, verify=False)
             response = response.json()['data']['data']['token']
             return response
         except Exception as e:
             logging.exception(f"Error retrieving Gravwell secret: {e}")
+            return None
+
+    def retrieve_firewall_secret(self) -> str:
+        ''' Retrieve the firewall API token '''
+        url = self.url + "/v1/fortinet/data/fortigate-automation"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()['data']['data']['key']
+            return response
+        except Exception as e:
+            logging.exception(f"Error retrieving firewall secret: {e}")
             return None
