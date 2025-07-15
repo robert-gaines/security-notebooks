@@ -85,4 +85,19 @@ class FortigateMethods():
                 logging.error("Failed to retrieve session table data: {0}".format(req.status_code))
         except Exception as e:
             logging.exception("Exception raised: {0}".format(e))
+
+    def retrieve_switchport_devices(self) -> None:
+        # Retrieve a list of all devices that are connected to switchports
+        logging.info("Requesting switchport device data")
+        try:
+            url = self.url + "monitor/switch-controller/detected-device?access_token={0}".format(self.token)
+            req = requests.get(url=url, headers=self.headers, verify=False)
+            if req.status_code == 200 and 'results' in req.json().keys():
+                df = pd.DataFrame(req.json()['results'])
+                display(df)
+                df.to_excel("switchport_devices.xlsx", index=False)
+            else:
+                logging.error("Failed to retrieve switchport device data: {0}".format(req.status_code))
+        except Exception as e:
+            logging.exception("Exception raised: {0}".format(e))
         
