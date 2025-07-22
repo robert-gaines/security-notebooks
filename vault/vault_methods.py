@@ -33,6 +33,17 @@ class VaultMethods():
         except Exception as e:
             logging.exception("Exception raised: {0}".format(e))
 
+    def retrieve_iris_secret(self) -> str:
+        '''Retrieve DFIR IRIS API token'''
+        url = self.url + "/v1/iris/data/iris-service-token"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()['data']['data']['token']
+            return response
+        except Exception as e:
+            logging.exception(f"Error retrieving DFIR Iris secret: {e}")
+            return None
+    
     def retrieve_gravwell_secret(self) -> str:
         '''Retrieve Gravwell API token'''
         url = self.url + "/v1/gravwell/data/gravwell-service-token"
@@ -53,4 +64,38 @@ class VaultMethods():
             return response
         except Exception as e:
             logging.exception(f"Error retrieving firewall secret: {e}")
+            return None
+
+    def retrieve_misp_secret(self) -> str:
+        ''' Retrieve the MISP token '''
+        url = self.url + "/v1/misp/data/misp-api"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()['data']['data']['key']
+            return response
+        except Exception as e:
+            logging.exception(f"Error retrieving MISP secret: {e}")
+            return None
+
+    def retrieve_fleetdm_secret(self) -> str:
+        ''' Retrieve the FleetDM token '''
+        url = self.url + "/v1/fleetdm/data/fleetdm-api-token"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()['data']['data']['key']
+            return response
+        except Exception as e:
+            logging.exception(f"Error retrieving FleetDM secret: {e}")
+            return None
+
+    def retrieve_nessus_secrets(self) -> str:
+        ''' Retrieve the Nessus Secrets '''
+        url = self.url + "/v1/nessus/data/nessus-api-keys"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            access = response.json()['data']['data']['access']
+            secret = response.json()['data']['data']['secret']
+            return [access, secret]
+        except Exception as e:
+            logging.exception(f"Exception raised while retrieving Nessus secrets: {e}")
             return None
