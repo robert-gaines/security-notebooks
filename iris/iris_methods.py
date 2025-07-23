@@ -32,7 +32,8 @@ class IrisMethods():
                 logging.info("Retrieved: {0} cases".format(len(raw_case_data)))
                 for case in raw_case_data:
                     if case['state_name'] == 'Open':
-                        # logging.info("Located: {0}".format(case['case_name']))
+                        logging.info("Located: {0} -> {1}".format(case['case_id'],
+                                                                  case['case_name']))
                         self.open_cases.append(case['case_id'])
                 logging.info("Identified {0} open cases in IRIS".format(len(self.open_cases)))
             else:
@@ -59,3 +60,69 @@ class IrisMethods():
                     logging.exception("Exception raised closing case: {0}".format(e))
         else:
             logging.error("No open cases in the queue")
+
+    def create_notes_directory(self, case_id, directory_name) -> str:
+        """ Creates a note directory for case notes """
+        try:
+            payload = { "cid": case_id, "name": str(directory_name) }
+            url = self.url + "case/notes/directories/add"
+            response = requests.post(url=url,
+                                     headers=self.headers,
+                                     data=json.dumps(payload),
+                                     verify=False)
+            if response.status_code == 200:
+                return response.json()['data']['id']
+            else:
+                return None
+        except Exception as e:
+            return None
+
+    def export_case_to_json(self, case_id: str) -> str:
+        try:
+            url = self.url + "case/export?cid={0}".format(case_id)
+            req = requests.get(url=url, headers=self.headers, verify=False)
+            if req.status_code == 200:
+                logging.info("Retrieved case data for  {0}".format(case_id))
+                case_data = req.json()
+                filename = "case_{0}.json".format(case_id)
+                with open(filename, "w") as file:
+                    json.dump(case_data, file, indent=1)
+                logging.info("Case exported to JSON: {0}".format(filename))
+            else:
+                logging.error("Failed to retrieve case data")
+        except Exception as e:
+            logging.exception("Exception raised: {0}".format(e))
+                
+    def add_case_note(self,
+                      case_id,
+                      dir_id,
+                      note_title,
+                      note) -> bool:
+        """ Add a note to a DFIR IRIS case directory """
+        try:
+            payload = { "cid": case_id, 
+                        "note_title": str(note_title),
+                        "note_content": str(note),
+                        "directory_id": dir_id }
+            response = requests.post(url="https://{0}/case/notes/add".format(self.cms),
+                                     headers=self.cms_headers,
+                                     data=json.dumps(payload),
+                                     verify=False)
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            return False
+
+    def get_case_iocs(self, case_id) -> None:
+        try:
+            url = self.url + "case/ioc/list?cid={0}".format(case_id)
+            response = requests.get(url=url,
+                                    headers=self.headers,
+                                    verify=False)
+            iocs = response.json()['data']
+            for ioc in iocs['ioc']:
+                logging.info(ioc['ioc_value'])
+        except Exception as e:
+            logging.exception("Exception raised: {0}".format(e))
