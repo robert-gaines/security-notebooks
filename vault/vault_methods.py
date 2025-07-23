@@ -88,6 +88,29 @@ class VaultMethods():
             logging.exception(f"Error retrieving FleetDM secret: {e}")
             return None
 
+    def retrieve_nist_nvd_secret(self) -> str:
+        ''' Retrieve the NIST NVD token '''
+        url = self.url + "/v1/NIST/data/NVD-API"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()['data']['data']['token']
+            return response
+        except Exception as e:
+            logging.exception(f"Error retrieving NIST NVD secret: {e}")
+            return None
+
+    def retrieve_elastic_secret(self) -> str:
+        ''' Retrieve the Elastic API token '''
+        url = self.url + "/v1/elastic/data/elastic-api-token"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            response = response.json()
+            token = response['data']['data']['token']
+            return token
+        except Exception as e:
+            logging.exception(f"Error retrieving Elastic secret: {e}")
+            return None
+
     def retrieve_nessus_secrets(self) -> str:
         ''' Retrieve the Nessus Secrets '''
         url = self.url + "/v1/nessus/data/nessus-api-keys"
