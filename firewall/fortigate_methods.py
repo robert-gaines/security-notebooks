@@ -212,6 +212,23 @@ class FortigateMethods():
             logging.error("Failed to create the address object ")
             return None
 
+    def create_fqdn_object(self, fqdn: str) -> None:
+        obj_name = "Automation_"+"[BLOCK]"+"_"+fqdn
+        logging.info("Attempting to create: {0}".format(obj_name))
+        json = {
+                    'name'  :obj_name,
+                    'fqdn'  : fqdn,
+                    'type'  :'fqdn',
+               }
+        url = self.url + "cmdb/firewall/address?access_token={0}".format(self.token)
+        response = requests.post(url, headers=self.headers, json=json, verify=False)
+        if response.status_code == 200:
+            logging.info("Sucessfully created the fqdn address object: {0} ".format(obj_name))
+            return obj_name
+        else:
+            logging.error("Failed to create the fqdn address object ")
+            return None
+
     def create_policy(self, srcintf: str, dstintf: str, obj_name: str) -> None:
         ts = time.ctime()
         ts = ts.replace(' ','_')
@@ -234,6 +251,14 @@ class FortigateMethods():
             logging.info("Sucessfully created a deny policy with the following name: {0} ".format(pol_name))
         else:
             logging.error("Failed to create the deny policy ")
+
+    def clear_session_table(self) -> None:
+        try:
+            url = self.url + "monitor/firewall/session/clear_all?access_token={0}".format(self.token)
+            response = requests.post(url, headers=self.headers, verify=False)
+            logging.info("Sent clear session table command")
+        except Exception as e:
+            logging.exception("Exception raised: {0}".format(e))
 
     
 

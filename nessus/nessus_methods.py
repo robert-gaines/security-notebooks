@@ -85,6 +85,9 @@ class NessusMethods():
                 url = self.url + "scans/{0}".format(key)
                 req = requests.get(url=url, headers=self.headers, verify=False)
                 if req.status_code == 200:
+                    for element in req.json()['hosts']:
+                        logging.info(element)
+                        logging.info('\n')
                     for element in req.json()['vulnerabilities']:
                         plugin_data = self.get_plugin_details(element['plugin_id'])
                         record = {}

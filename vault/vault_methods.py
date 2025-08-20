@@ -111,7 +111,7 @@ class VaultMethods():
             logging.exception(f"Error retrieving Elastic secret: {e}")
             return None
 
-    def retrieve_nessus_secrets(self) -> str:
+    def retrieve_nessus_secrets(self) -> list:
         ''' Retrieve the Nessus Secrets '''
         url = self.url + "/v1/nessus/data/nessus-api-keys"
         try:
@@ -122,3 +122,25 @@ class VaultMethods():
         except Exception as e:
             logging.exception(f"Exception raised while retrieving Nessus secrets: {e}")
             return None
+
+    def retrieve_proxmox_secrets(self) -> str:
+        ''' Retrieve the Proxmox Secrets '''
+        url = self.url + "/v1/proxmox/data/security-automation"
+        try:
+            response = requests.get(url, headers=self.headers, verify=False)
+            if response.status_code == 200:
+                data = response.json()['data']['data']
+                identity = data['identity']
+                realm = data['realm']
+                role = data['role']
+                token = data['token']
+                return {'identity': identity,
+                        'realm': realm,
+                        'role': role,
+                        'token': token}
+            else:
+                logging.info("Failed to retrieve Proxmox authentication data")
+        except Exception as e:
+            logging.exception(f"Exception raised while retrieving Proxmox: {e}")
+            return None
+        
