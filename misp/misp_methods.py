@@ -28,6 +28,7 @@ class MISPMethods():
                                 headers=self.headers,
                                 json=payload,
                                 verify=False)
+            print(req.json())
             if req.status_code == 200:
                 response = req.json()['response']
                 if response:
